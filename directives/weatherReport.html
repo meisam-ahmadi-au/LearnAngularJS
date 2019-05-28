@@ -2,7 +2,7 @@
   <div class="panel-heading">
     <h3 class="panel-title">{{ convertToDate({dt: weatherDay.dt_txt}) | date: dateFormat }}</h3>
   </div>
-  <div class="panel-body">
+  <div ng-class="classes({temp:weatherDay.main.temp})">
     Daytime temp: {{ convertToStandard({ daytimeTemp: weatherDay.main.temp}) }}
   </div>
 </div>

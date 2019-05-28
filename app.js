@@ -1,11 +1,7 @@
 // Module
 var weatherApp = angular.module("weatherApp", ['ngRoute','ngResource']);
 
-// Custom Service
-weatherApp.service("cityService", function(){
-  this.city = "London";
-  this.key = "f72a37ada5d56dc2fe63e20278c8ddac";
-})
+
 
 // Controllers
 weatherApp.controller("homeCtrl", ['$scope', 'cityService', homeController]);
@@ -17,22 +13,27 @@ function homeController($scope, cityService) {
   })
 }
 
-weatherApp.controller("forecastCtrl", ['$scope', '$resource', '$routeParams', 'cityService',  function($scope, $resource, $routeParams, cityService) {
+weatherApp.controller("forecastCtrl", ['$scope', '$routeParams', 'cityService', 'weatherService', function($scope, $routeParams, cityService,weatherService) {
   $scope.city= cityService.city;
   $scope.days = $routeParams.days || '2';
-  console.log(cityService.key)
-  var weatherAPI = $resource("https://api.openweathermap.org/data/2.5/forecast");
-  $scope.weatherResult = weatherAPI.get({ q: cityService.city, cnt: $scope.days, appid: cityService.key})
+  $scope.addweatherResult = weatherService.GetWeather($scope.city, $scope.days);
+
   $scope.convertToFarenheit = function(degK) {
     return Math.round((1.8 * (degK-273))+32);
+  }
+  // classes for high degree
+  $scope.classes = function(degK) {
+    return {
+      "panel-body": true,
+      "text-primary":$scope.convertToFarenheit(degK) < 62,
+      "text-danger": $scope.convertToFarenheit(degK) >= 62
+    }
   }
 
   //* just function
   $scope.convertToDate = function(dt) {
     return dt.substring(0,10);
   }
-
-  console.log($scope.weatherResult);
 }]);
 // Custom Directive
 
@@ -43,6 +44,7 @@ weatherApp.directive('weatherReport', function(){
     replace: true,
     scope: {
       weatherDay: '=', // object
+      classes: '&', // object
       convertToStandard: "&", // function
       convertToDate: "&", // function
       dateFormat: "@" // string
